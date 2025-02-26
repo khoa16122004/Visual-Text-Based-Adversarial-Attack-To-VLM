@@ -1,2 +1,0 @@
-{'id': 0, 'fitness': 23.765625, 'adv': <PIL.Image.Image image mode=RGB size=4056x3141 at 0x26A8E525520>}
-{'id': 1, 'fitness': 23.78125, 'adv': <PIL.Image.Image image mode=RGB size=4056x3141 at 0x26A8E3A1D00>}

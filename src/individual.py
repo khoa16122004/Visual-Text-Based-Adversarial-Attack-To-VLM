@@ -16,7 +16,7 @@ class TextIndividual:
     box_size: Tuple[int, int]
     angle: int = 0
     blend_factor: float = 0.5
-
+    
     def blend_colors(self, target_color, blend_factor):
         r = int(target_color[0] * (blend_factor))
         g = int(target_color[1] * (blend_factor))
@@ -139,18 +139,20 @@ class TextIndividual:
 if __name__ == "__main__":
     test_img_path = r'D:\codePJ\RESEARCH\Flow-Based-Attack-To-VLM\src\images\lionsea.jpg'
     img = cv2.imread(test_img_path)
-    text_test = "A quick brown fox jumps over the lazy dog"
+    text_test = "A fox is jumping"
     img_shape = img.shape
-    color = (255, 0, 0)  
+    # color = (255, 0, 0)  
     
-    box_size = (min(random.randint(int(0.25*img_shape[1]), img_shape[1] - 100), img_shape[1]), # width
-                min(random.randint(int(0.1*img_shape[0]), img_shape[0] - 100), img_shape[0])) # height
-    location = (random.randint(0, img_shape[1] - box_size[0]), 
-                random.randint(0, img_shape[0] - box_size[1]))
-    random_angle = random.randint(-30, 30)
-    random_blend = random.uniform(0.5, 1.0)
-    # random_angle = 0
-    # random_blend = 0.5
+    # box_size = (min(random.randint(int(0.25*img_shape[1]), img_shape[1] - 100), img_shape[1]), # width
+    #             min(random.randint(int(0.1*img_shape[0]), img_shape[0] - 100), img_shape[0])) # height
+    # location = (random.randint(0, img_shape[1] - box_size[0]), 
+    #             random.randint(0, img_shape[0] - box_size[1]))
+    box_size = (3467, 372)
+    location = (99, 718)
+    # random_angle = random.randint(-30, 30)
+    # random_blend = random.uniform(0.5, 1.0)
+    random_angle = -4
+    random_blend = 0.9
     individual = TextIndividual(
         content=text_test, 
         # color=color, 
@@ -161,7 +163,16 @@ if __name__ == "__main__":
     )
     
     img_test_aft, mask = individual.add_text_to_image(img)
-    Image.fromarray(img_test_aft).show()
+    # Show the PIL Image
+    img_test_aft.show()
+
+    # Alternatively, display with matplotlib
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(10, 8))
+    plt.imshow(img_test_aft)
+    plt.axis('off')
+    plt.title("Image with Text")
+    plt.show()
 
     cv2.imshow('Mask', cv2.resize(mask, (800, 600)))
     cv2.waitKey(0)

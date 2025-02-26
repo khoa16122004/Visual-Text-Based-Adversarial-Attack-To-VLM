@@ -33,4 +33,5 @@ class Fitness:
         # sim(adv, gt) >< sim(adv, content)
         adv_sim_score = self.model.evaluate(watermarked, adv_text)
         gt_sim_score = self.model.evaluate(watermarked, self.gt_text)
-        return  self.PSNR(roi, mask), adv_sim_score - gt_sim_score
+        success = adv_sim_score > gt_sim_score
+        return  success, self.PSNR(roi, mask), adv_sim_score - gt_sim_score
