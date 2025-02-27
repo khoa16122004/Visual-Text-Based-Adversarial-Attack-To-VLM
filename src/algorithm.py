@@ -21,6 +21,7 @@ class GABase:
     - Logging
     '''
     def __init__(self, 
+                 id: int, 
                  population_size: int,
                  f_fit: Fitness,
                  model: CLIP,
@@ -29,7 +30,8 @@ class GABase:
                  cross_rate: float = 0.5,
                  generations: int = 100,
                  gt_text: str = '',
-                 adv_text: str = ''):
+                 adv_text: str = '',
+                 ):
         self.f_fit = f_fit
         self.cross_rate = cross_rate
         self.model = model
@@ -40,7 +42,7 @@ class GABase:
         self.mutation_rate = mutation_rate
         self.generations = generations
         self.logger = []
-    
+        self.id = id    
     def create_box(self):
         img_shape = self.org_img.shape
         margin = MARGIN
@@ -188,10 +190,10 @@ class GABase:
             
         return parents
     def logging(self, individual_dict, save_img=False):
-        root = 'results'
+        root = f'results/{self.id}'
         import os
         if not os.path.exists(root):
-            os.makedirs(root)
+            os.makedirs(root, exist_ok=True)
 
         last_best = self.logger[-1] if self.logger else None
         if last_best:
@@ -207,7 +209,7 @@ class GABase:
             self.logger.append(individual_dict)
         return
     def save_log(self, path):
-        result_root = 'results'
+        result_root = f'results/{self.id}'
         import os
         if not os.path.exists(result_root):
             os.makedirs(result_root)
