@@ -221,6 +221,7 @@ class GABase:
 
 class POPOP(GABase):
     def __init__(self, 
+                 i: int,
                  population_size: int,
                  f_fit: Fitness,
                  model: CLIP,
@@ -231,6 +232,7 @@ class POPOP(GABase):
                  gt_text: str = '',
                  adv_text: str = ''):
         super().__init__(
+            i=i,
             population_size=population_size,
             f_fit=f_fit,
             model=model,
