@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 from utils import seed_everything
-from model import OpenCLIP
+from model import OpenCLIP, CLIP
 from algorithm import POPOP
 import cv2
 from fitness import Fitness
@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument("--mutation_rate", type=float, default=0.9)
     parser.add_argument("--annotation_file", type=str)
     parser.add_argument("--img_dir", type=str)
+    parser.add_argument("--arch", type=str, choices=['clip', 'openclip'])
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -35,7 +36,10 @@ if __name__ == "__main__":
         img = cv2.resize(cv2.imread(img_path), (224, 224))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        vlm = OpenCLIP(args.model_name)
+        if args.arch == 'clip':
+            vlm = CLIP(args.model_name)
+        elif args.arch == 'openclip':
+            vlm = OpenCLIP(args.model_name)
 
         fitness = Fitness(org_img=img,
                           model=vlm,
