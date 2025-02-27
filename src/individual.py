@@ -15,7 +15,7 @@ class TextIndividual:
     location: Tuple[int, int]
     box_size: Tuple[int, int]
     angle: int = 0
-    blend_factor: float = 0.5
+    blend_factor: float = 0.9
     
     def blend_colors(self, target_color, blend_factor):
         r = int(target_color[0] * (blend_factor))

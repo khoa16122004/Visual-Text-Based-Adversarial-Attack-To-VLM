@@ -160,7 +160,7 @@ class GABase:
             location=child1_location,
             box_size=child1_font_size,
             angle=child1_angle,
-            blend_factor=child1_blend_factor
+            # blend_factor=child1_blend_factor
 
         )
         
@@ -169,7 +169,7 @@ class GABase:
             location=child2_location,
             box_size=child2_font_size,
             angle=child2_angle,
-            blend_factor=child2_blend_factor
+            # blend_factor=child2_blend_factor
         )
         
         return child1, child2
