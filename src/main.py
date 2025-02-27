@@ -50,7 +50,7 @@ if __name__ == "__main__":
             mutation_rate=args.mutation_rate,
             generations=args.max_iter,
             gt_text=c_gt,
-            adv_text=c_tar
+            adv_text="A fox"
         )
         
         best_individual = popop.run()
