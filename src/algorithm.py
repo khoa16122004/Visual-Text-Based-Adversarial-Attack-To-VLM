@@ -190,7 +190,7 @@ class GABase:
             
         return parents
     def logging(self, individual_dict, save_img=False):
-        root = f'results/{self.id}'
+        root = f'results/{self.i}'
         import os
         if not os.path.exists(root):
             os.makedirs(root, exist_ok=True)
@@ -209,7 +209,7 @@ class GABase:
             self.logger.append(individual_dict)
         return
     def save_log(self, path):
-        result_root = f'results/{self.id}'
+        result_root = f'results/{self.i}'
         import os
         if not os.path.exists(result_root):
             os.makedirs(result_root)
