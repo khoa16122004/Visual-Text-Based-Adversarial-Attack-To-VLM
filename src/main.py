@@ -46,7 +46,7 @@ if __name__ == "__main__":
                           gt_text=c_gt)
         
         popop = POPOP(
-            id=i,
+            i=i,
             population_size=args.pop_size,
             f_fit=fitness,
             cross_rate=args.cross_rate,

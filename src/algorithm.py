@@ -21,7 +21,7 @@ class GABase:
     - Logging
     '''
     def __init__(self, 
-                 id: int, 
+                 i: int, 
                  population_size: int,
                  f_fit: Fitness,
                  model: CLIP,
@@ -42,7 +42,7 @@ class GABase:
         self.mutation_rate = mutation_rate
         self.generations = generations
         self.logger = []
-        self.id = id    
+        self.i = i    
     def create_box(self):
         img_shape = self.org_img.shape
         margin = MARGIN
