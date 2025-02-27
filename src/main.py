@@ -1,6 +1,6 @@
 import argparse
 import numpy as np
-from utils import seed_everything, log
+from utils import seed_everything
 from model import OpenCLIP
 from algorithm import POPOP
 import cv2
