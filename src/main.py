@@ -53,6 +53,8 @@ if __name__ == "__main__":
             adv_text=c_tar
         )
         
+        best_individual = popop.run()
+        popop.save_log('popop.txt')
         break        
     
     print("Success rate: ", success_rate / 100)  
