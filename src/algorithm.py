@@ -62,7 +62,8 @@ class GABase:
         box_size = self.create_box()
         location = self.create_location(box_size)
         angle = self.create_angle()
-        blended = self.create_blended_fac()
+        # blended = self.create_blended_fac()
+        blended = 0.9
         return TextIndividual(
             content=text_content,
             location=location,
@@ -98,9 +99,9 @@ class GABase:
             # mutate location
             new_loc = self.create_location(individual.box_size)
             individual.location = new_loc
-        if random.random() < self.mutation_rate:
-            # mutate blend factor
-            individual.blend_factor = self.create_blended_fac()
+        # if random.random() < self.mutation_rate:
+        #     # mutate blend factor
+        #     individual.blend_factor = self.create_blended_fac()
         return individual
     def BLX_alpha(self, p1, p2, alpha=0.5):
         d = abs(p1 - p2)
@@ -146,13 +147,13 @@ class GABase:
             child2_angle = self.BLX_alpha(parent2.angle, parent1.angle)
 
         # Blend factor crossover
-        if random.random() < self.cross_rate:
-            # Swap blend factors
-            child1_blend_factor = parent2.blend_factor
-            child2_blend_factor = parent1.blend_factor
-        else:
-            child1_blend_factor = self.BLX_alpha(parent1.blend_factor, parent2.blend_factor)
-            child2_blend_factor = self.BLX_alpha(parent2.blend_factor, parent1.blend_factor)
+        # if random.random() < self.cross_rate:
+        #     # Swap blend factors
+        #     child1_blend_factor = parent2.blend_factor
+        #     child2_blend_factor = parent1.blend_factor
+        # else:
+        #     child1_blend_factor = self.BLX_alpha(parent1.blend_factor, parent2.blend_factor)
+        #     child2_blend_factor = self.BLX_alpha(parent2.blend_factor, parent1.blend_factor)
 
         child1 = TextIndividual(
             content=parent1.content,

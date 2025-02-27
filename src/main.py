@@ -34,7 +34,7 @@ if __name__ == "__main__":
         img_path = os.path.join(args.img_dir, img_id)
         
         img = cv2.resize(cv2.imread(img_path), (224, 224))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if args.arch == 'clip':
             vlm = CLIP(args.model_name)
@@ -61,4 +61,4 @@ if __name__ == "__main__":
         popop.save_log('popop.txt')
         break        
     
-    print("Success rate: ", success_rate / 100)  
+    # print("Success rate: ", success_rate / 100)  
