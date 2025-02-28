@@ -98,10 +98,4 @@ class BLIP:
 
      
 if __name__ == "__main__":
-    # model = CLIP()
-    model = OpenCLIP()
-    x = Image.open(r"D:\Adversarial-Robustness-of-Vision-Language-Model-In-Difference-Tasks\src\images\dog.jpg")
-    c = "a cat flying in the sky"
-    
-    cos_sim = model.evaluate(x, c)
-    print(cos_sim)
+    model = BLIP()
