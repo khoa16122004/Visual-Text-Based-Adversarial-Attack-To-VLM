@@ -1,8 +1,8 @@
-import clip
+# import clip
 import torch
 import torch.nn as nn
 from PIL import Image
-import open_clip
+# import open_clip
 from typing import List
 from PIL import Image
 from lavis.models import load_model_and_preprocess
