@@ -59,15 +59,13 @@ if __name__ == '__main__':
     if img is None:
         print("Image not found.")
     else:
-        # Parameters for the caption
         text = "A. Einstein"
-        angle = -math.pi / 4  # Rotation in radians
-        text_org = (100, 100) # Desired location (x, y)
-        font_scale = 1.0      # Font size scale
-        color = (0, 0, 255)   # Red color (BGR)
+        angle = -math.pi / 4 
+        text_org = (100, 100) 
+        font_scale = 1.0      
+        color = (0, 0, 255)   
         font_face = cv2.FONT_HERSHEY_COMPLEX
         
-        # Draw the caption onto the image
         img_with_caption = draw_caption(img, text, text_org, angle, font_scale, color, font_face)
 
         cv2.imread("resize.png", img_with_caption

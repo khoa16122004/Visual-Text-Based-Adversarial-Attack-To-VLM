@@ -5,6 +5,8 @@ from PIL import Image
 import open_clip
 from typing import List
 from PIL import Image
+from lavis.models import load_model_and_preprocess
+from lavis.processors import load_processor
 
 class OpenCLIP:
     def __init__(self, model_name="ViT-H-14"):
@@ -76,7 +78,25 @@ class CLIP:
         cos_sim = self.cos(img_features, text_features)
         
         return cos_sim
+
+class BLIP:
+    def __init__(self):
+        self.model, self.vis_proccessors, self.text_proccessors = load_model_and_preprocess("blip2_image_text_matching", "pretrain", device="cuda", is_eval=True)
+        print(self.model)
         
+        
+    @torch.no_grad()
+    def text_encode(self, c: List[str]):
+        pass
+    
+    @torch.no_grad()
+    def image_encode(self, img: List[Image.Image]):
+        pass
+    
+    def evaluate(self, x: Image, c: str):
+        pass
+
+     
 if __name__ == "__main__":
     # model = CLIP()
     model = OpenCLIP()
