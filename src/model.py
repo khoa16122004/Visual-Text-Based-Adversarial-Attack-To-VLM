@@ -47,7 +47,7 @@ class OpenCLIP:
         return cos_sim
     
 class CLIP:
-    def __init__(self, model_name="ViT-H/14"):
+    def __init__(self, model_name="ViT-L/14"):
         self.model, self.preprocess = clip.load(model_name, device="cuda")
         self.cos = nn.CosineSimilarity(dim=1, eps=1e-6)
         self.model.eval()
