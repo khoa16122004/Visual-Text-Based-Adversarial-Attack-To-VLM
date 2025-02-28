@@ -98,4 +98,6 @@ class BLIP:
 
      
 if __name__ == "__main__":
+    model = CLIP()
+    model = OpenCLIP()
     model = BLIP()
