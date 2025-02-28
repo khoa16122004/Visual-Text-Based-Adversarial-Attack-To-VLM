@@ -5,8 +5,8 @@ from PIL import Image
 import open_clip
 from typing import List
 from PIL import Image
-from lavis.models import load_model_and_preprocess
-from lavis.processors import load_processor
+# from lavis.models import load_model_and_preprocess
+# from lavis.processors import load_processor
 
 class OpenCLIP:
     def __init__(self, model_name="ViT-H-14"):
