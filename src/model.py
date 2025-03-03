@@ -100,8 +100,11 @@ class BLIP:
     
     
     def evaluate(self, x, c):
-        
-        samples = {"image": self.vis_proccessors(x), "text_input": self.text_proccessors(c)}
+        imgs = []
+        for img in x:
+            imgs.append(self.vis_proccessors(img))
+                        
+        samples = {"image": torch.stack(imgs) , "text_input": self.text_proccessors(c)}
         itm_output = self.model(samples, match_head="itm")
         print(itm_output)
 
