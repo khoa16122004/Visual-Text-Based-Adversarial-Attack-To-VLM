@@ -98,7 +98,7 @@ class BLIP:
         
     @torch.no_grad()
     def text_encode(self, sample):
-        txt = self.text_proccessors(c)
+        txt = self.text_proccessors(sample)
         return self.model.extract_features(txt, mode="text")
 
     
