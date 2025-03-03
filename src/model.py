@@ -84,7 +84,7 @@ class BLIP:
     def __init__(self):
         self.model, vis_proccessors, text_proccessors = load_model_and_preprocess("blip2_image_text_matching", "pretrain", device="cuda", is_eval=True)
         self.vis_proccessors, self.text_proccessors = vis_proccessors["eval"], text_proccessors["eval"]
-        
+        self.model = self.model.cuda()
         
     @torch.no_grad()
     def text_encode(self, c: List[str]):
@@ -101,13 +101,13 @@ class BLIP:
     
     
     def evaluate(self, x, c):
-        imgs = []
-        for img in x:
-            print(img)
-            print(type(img))
-            imgs.append(self.vis_proccessors(img))
+        # imgs = []
+        # for img in x:
+        #     print(img)
+        #     print(type(img))
+        #     imgs.append(self.vis_proccessors(img))
         print(imgs.shape)                
-        samples = {"image": torch.stack(imgs) , "text_input": self.text_proccessors(c)}
+        samples = {"image": self.vis_proccessors(x).unsqueeze(0).cuda() , "text_input": self.text_proccessors(c).cuda()}
         itm_output = self.model(samples, match_head="itm")
         print(itm_output)
 
@@ -118,12 +118,16 @@ if __name__ == "__main__":
     model = BLIP()
     imgs = []
     c = []
-    print(cv.imread("0.png"))
-    for i in range(0, 5):
-        # imgs.append(Image.open("0.png").convert("RGB"))
-        imgs.append(cv.imread("0.png"))
-        c.append("dog")
+    x = Image.open("0.png").convert("RGB")
+    print(x)
+    # print(cv.imread("0.png"))
+    # for i in range(0, 5):
+    #     # imgs.append(Image.open("0.png").convert("RGB"))
+    #     imgs.append(cv.imread("0.png"))
+    #     c.append("dog")
+    
+    
         
-    model.evaluate(imgs, c)
+    model.evaluate(x, c)
     
     
