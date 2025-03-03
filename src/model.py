@@ -103,6 +103,7 @@ class BLIP:
     def evaluate(self, x, c):
         imgs = []
         for img in x:
+            print(img)
             print(type(img))
             imgs.append(self.vis_proccessors(img))
         print(imgs.shape)                
