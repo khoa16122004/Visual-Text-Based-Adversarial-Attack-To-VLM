@@ -7,6 +7,7 @@ from typing import List
 from PIL import Image
 from lavis.models import load_model_and_preprocess
 from lavis.processors import load_processor
+import cv2 as cv
 
 class OpenCLIP:
     def __init__(self, model_name="ViT-H-14"):
@@ -117,7 +118,8 @@ if __name__ == "__main__":
     imgs = []
     c = []
     for i in range(0, 5):
-        imgs.append(Image.open("0.png").convert("RGB"))
+        # imgs.append(Image.open("0.png").convert("RGB"))
+        imgs.append(cv.imread("0.png"))
         c.append("dog")
         
     model.evaluate(imgs, c)
