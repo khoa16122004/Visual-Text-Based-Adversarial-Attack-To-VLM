@@ -93,12 +93,22 @@ class BLIP:
         # return self.model
         # pass
     
+    def create_sample(self, x, c):
+        imgs = []
+        txts = []
+        for img, txt in zip(x, c):
+            imgs.append(self.vis_proccessors(img))
+            txts.append(self.text_proccessors(txt))
+
+        imgs = torch.stack(imgs).cuda()
+        return {"image": imgs , "text_input": txts}
+
+        
+    
     @torch.no_grad()
     def image_encode(self, img: List[Image.Image]):
         imgs = []
-        for x in img:
-            imgs.append(self.vis_proccessors(x))
-        imgs = torch.stack(imgs).cuda()
+
         return self.model.extract_features(imgs, mode="image")
         # pass
     
@@ -129,12 +139,11 @@ if __name__ == "__main__":
     # print(cv.imread("0.png"))
     for i in range(0, 5):
         imgs.append(x)
-        # imgs.append(cv.imread("0.png"))
         c.append("dog")
-    
+    samples = model.create_sample(imgs, c)
     
         
-    model.image_encode(imgs)
-    model.text_encode(c)
+    model.image_encode(samples)
+    model.text_encode(samples)
     
     
