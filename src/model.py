@@ -86,13 +86,6 @@ class BLIP:
         self.vis_proccessors, self.text_proccessors = vis_proccessors["eval"], text_proccessors["eval"]
         self.model = self.model.cuda()
         
-    @torch.no_grad()
-    def text_encode(self, c: List[str]):
-        txt = self.text_proccessors(c)
-        return self.model.extract_features(txt, mode="text")
-        # return self.model
-        # pass
-    
     def create_sample(self, x, c):
         imgs = []
         txts = []
@@ -102,24 +95,25 @@ class BLIP:
 
         imgs = torch.stack(imgs).cuda()
         return {"image": imgs , "text_input": txts}
+        
+    @torch.no_grad()
+    def text_encode(self, sample):
+        txt = self.text_proccessors(c)
+        return self.model.extract_features(txt, mode="text")
+
+    
 
         
     
     @torch.no_grad()
-    def image_encode(self, img: List[Image.Image]):
-        imgs = []
-
-        return self.model.extract_features(imgs, mode="image")
+    def image_encode(self, sample):
+        return self.model.extract_features(sample, mode="image")
         # pass
     
     
     
     def evaluate(self, x, c):
-        # imgs = []
-        # for img in x:
-        #     print(img)
-        #     print(type(img))
-        #     imgs.append(self.vis_proccessors(img))
+
         print(self.vis_proccessors)
         
         samples = {"image": self.vis_proccessors(x).unsqueeze(0).cuda() , "text_input": [self.text_proccessors(c)]}
@@ -143,7 +137,10 @@ if __name__ == "__main__":
     samples = model.create_sample(imgs, c)
     
         
-    model.image_encode(samples)
-    model.text_encode(samples)
+    img_v = model.image_encode(samples)
+    txt_v = model.text_encode(samples)
+    
+    print(img_v.shape)
+    print(txt_v.shape)
     
     
