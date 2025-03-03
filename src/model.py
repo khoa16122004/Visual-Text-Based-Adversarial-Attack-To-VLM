@@ -81,23 +81,41 @@ class CLIP:
 
 class BLIP:
     def __init__(self):
-        self.model, self.vis_proccessors, self.text_proccessors = load_model_and_preprocess("blip2_image_text_matching", "pretrain", device="cuda", is_eval=True)
-        print(self.model)
+        self.model, vis_proccessors, text_proccessors = load_model_and_preprocess("blip2_image_text_matching", "pretrain", device="cuda", is_eval=True)
+        self.vis_proccessors, self.text_proccessors = vis_proccessors["eval"], text_proccessors["eval"]
         
         
     @torch.no_grad()
     def text_encode(self, c: List[str]):
+        # txt = self.text_proccessors(c).cuda()
+        # return self.model
         pass
     
     @torch.no_grad()
     def image_encode(self, img: List[Image.Image]):
+        # img = self.vis_proccessors(img)
+        # print("Image shape: ", img.shape)
         pass
     
-    def evaluate(self, x: Image, c: str):
-        pass
+    
+    
+    def evaluate(self, x, c):
+        
+        samples = {"image": self.vis_proccessors(x), "text_input": self.text_proccessors(c)}
+        itm_output = self.model(samples, match_head="itm")
+        print(itm_output)
 
      
 if __name__ == "__main__":
     # model = CLIP()
     # model = OpenCLIP()
     model = BLIP()
+    imgs = []
+    c = []
+    for i in range(0, 5):
+        imgs.append(Image.open("0.png").convert("RGB"))
+        c.append("dog")
+        
+    model.evaluate(imgs, c)
+    
+    

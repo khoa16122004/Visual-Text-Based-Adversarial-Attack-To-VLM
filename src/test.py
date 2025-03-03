@@ -1,71 +1,49 @@
 import cv2
 import numpy as np
-import math
 
-def draw_caption(img, text, text_org, angle, font_scale=1.0, color=(0, 0, 255),
-                 font_face=cv2.FONT_HERSHEY_COMPLEX, thickness=2):
-    """
-    Draw rotated text on the image.
-    
-    Parameters:
-      img       : Input image (numpy array).
-      text      : The caption text.
-      text_org  : Tuple (x, y) where the text should be placed.
-      angle     : Rotation angle in radians.
-      font_scale: Scale factor for the font (controls size).
-      color     : Text color in BGR (e.g., (0,0,255) for red).
-      font_face : OpenCV font type (default: cv2.FONT_HERSHEY_COMPLEX).
-      thickness : Thickness of the text stroke.
-      
-    Returns:
-      img_with_cap: Image with the rotated text blended in.
-    """
-    # Get text size and baseline
-    (text_width, text_height), baseline = cv2.getTextSize(text, font_face, font_scale, thickness)
-    
-    # Compute a center position for the text on a blank canvas
-    text_center = ((img.shape[1] - text_width) // 2, (img.shape[0] + text_height) // 2)
-    
-    # Create a blank image to draw the text
-    img_txt = np.zeros_like(img)
-    cv2.putText(img_txt, text, text_center, font_face, font_scale, color, thickness, cv2.LINE_AA)
-    
-    # Compute the rotation matrix for the affine transform
-    cosA = math.cos(angle)
-    sinA = math.sin(angle)
-    tx = text_org[0] - (cosA * text_center[0] - sinA * text_center[1])
-    ty = text_org[1] - (sinA * text_center[0] + cosA * text_center[1])
-    M = np.array([[cosA, -sinA, tx],
-                  [sinA,  cosA, ty]], dtype=np.float32)
-    
-    # Rotate the text image so the text is at the desired location and angle
-    img_dst = cv2.warpAffine(img_txt, M, (img.shape[1], img.shape[0]))
-    
-    # Create a mask from the text (white text on black background)
-    mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
-    cv2.putText(mask, text, text_center, font_face, font_scale, 255, thickness, cv2.LINE_AA)
-    mask = cv2.warpAffine(mask, M, (img.shape[1], img.shape[0]))
-    
-    # Combine the rotated text with the original image using the mask.
-    # This replicates the bitwise_and blend from the C++ code.
-    img_with_cap = cv2.bitwise_and(img, img_dst, mask=mask)
-    
-    return img_with_cap
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Example usage:
-if __name__ == '__main__':
-    # Load the image using cv2
-    img = cv2.imread("resize.png")
-    if img is None:
-        print("Image not found.")
-    else:
-        text = "A. Einstein"
-        angle = -math.pi / 4 
-        text_org = (100, 100) 
-        font_scale = 1.0      
-        color = (0, 0, 255)   
-        font_face = cv2.FONT_HERSHEY_COMPLEX
+def putText(img, text, font_size, color, position, thickness, angle, font=cv2.FONT_HERSHEY_SIMPLEX):
+  (text_w, text_h), baseline = cv2.getTextSize(text, font, font_size, thickness)
+  
+  (x_min_text, y_min_text) = (position[0], position[1] - text_h)
+  (x_max_text, y_max_text) = (position[0] + text_w, position[1] + baseline)
+  x_center_text = (x_min_text + x_max_text) // 2
+  y_center_text = (y_min_text + y_max_text) // 2
+  R = np.sqrt((x_center_text - x_min_text) ** 2 + (y_center_text - y_min_text) ** 2)
+  
+  if R - int(R) >= 0.5:
+    R = int(R) + 1
+  else:
+    R = int(R)
+  
+  (x_square_min_text, y_square_min_text) = (x_center_text - R, y_center_text - R)
+  (x_square_max_text, y_square_max_text) = (x_center_text + R, y_center_text + R)
+    
+  
+  text_black_img = np.zeros((2 * R, 2 * R, 3), dtype=np.uint8)
+  position_new = (R - text_w // 2, R + text_h // 2)
+  cv2.putText(text_black_img, text, position_new, font, font_size, (1, 1, 1), thickness)
+  
+  center = (R, R)
+  rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+  rotated_image = cv2.warpAffine(text_black_img, rotation_matrix, (2*R, 2*R), 
+                                 flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT, 
+                                 borderValue=(0, 0, 0))
+
+
+  
+  cv2.imwrite("text_black_img.png", rotated_image)
+
+  patch_tmp = img[y_square_min_text:y_square_max_text, x_square_min_text:x_square_max_text, :].copy()
+  
+  mask_ones = np.ones_like(patch_tmp, dtype=np.uint8)
+  img[y_square_min_text:y_square_max_text, x_square_min_text:x_square_max_text, :] = patch_tmp * (mask_ones - rotated_image) + patch_tmp * rotated_image * color
+  cv2.imwrite("rotated.png", img)
         
-        img_with_caption = draw_caption(img, text, text_org, angle, font_scale, color, font_face)
 
-        cv2.imread("resize.png", img_with_caption
+
+img = cv2.imread("resize.png")
+putText(img, "hello", 1, (0, 0, 255), (50, 100), 1, 20)

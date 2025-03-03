@@ -148,22 +148,11 @@ class GABase:
             child1_angle = self.BLX_alpha(parent1.angle, parent2.angle)
             child2_angle = self.BLX_alpha(parent2.angle, parent1.angle)
 
-        # Blend factor crossover
-        # if random.random() < self.cross_rate:
-        #     # Swap blend factors
-        #     child1_blend_factor = parent2.blend_factor
-        #     child2_blend_factor = parent1.blend_factor
-        # else:
-        #     child1_blend_factor = self.BLX_alpha(parent1.blend_factor, parent2.blend_factor)
-        #     child2_blend_factor = self.BLX_alpha(parent2.blend_factor, parent1.blend_factor)
-
         child1 = TextIndividual(
             content=parent1.content,
             location=child1_location,
             box_size=child1_font_size,
             angle=child1_angle,
-            # blend_factor=child1_blend_factor
-
         )
         
         child2 = TextIndividual(
@@ -171,7 +160,6 @@ class GABase:
             location=child2_location,
             box_size=child2_font_size,
             angle=child2_angle,
-            # blend_factor=child2_blend_factor
         )
         
         return child1, child2

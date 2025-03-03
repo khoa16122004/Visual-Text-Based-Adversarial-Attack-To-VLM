@@ -15,7 +15,7 @@ class TextIndividual:
     location: Tuple[int, int]
     box_size: Tuple[int, int]
     angle: int = 0
-    blend_factor: float = 0.9
+    blend_factor: float = 255
     
     def blend_colors(self, target_color, blend_factor):
         r = int(target_color[0] * (blend_factor))
@@ -135,7 +135,13 @@ class TextIndividual:
         final_img = PILImage.fromarray(final_img_rgb)
         return final_img, mask_region
 
+    def add_text_to_image(self, img: np.ndarray) -> Tuple[Image, np.ndarray]:
+        img_pil = Image.fromarray(img)
 
+
+
+    
+    
 if __name__ == "__main__":
     test_img_path = r'D:\codePJ\RESEARCH\Flow-Based-Attack-To-VLM\src\images\lionsea.jpg'
     img = cv2.imread(test_img_path)
