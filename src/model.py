@@ -118,6 +118,7 @@ if __name__ == "__main__":
     model = BLIP()
     imgs = []
     c = []
+    print(cv.imread("0.png"))
     for i in range(0, 5):
         # imgs.append(Image.open("0.png").convert("RGB"))
         imgs.append(cv.imread("0.png"))
