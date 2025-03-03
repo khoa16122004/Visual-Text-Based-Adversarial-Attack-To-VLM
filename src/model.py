@@ -82,7 +82,7 @@ class CLIP:
 
 class BLIP:
     def __init__(self):
-        self.model, vis_proccessors, text_proccessors = load_model_and_preprocess("blip2_image_text_matching", "pretrain", device="cuda", is_eval=True)
+        self.model, vis_proccessors, text_proccessors = load_model_and_preprocess("blip2_feature_extractor", "pretrain", device="cuda", is_eval=True)
         self.vis_proccessors, self.text_proccessors = vis_proccessors["eval"], text_proccessors["eval"]
         self.model = self.model.cuda()
         
@@ -94,7 +94,7 @@ class BLIP:
     
     @torch.no_grad()
     def image_encode(self, img: List[Image.Image]):
-        # img = self.vis_proccessors(img)
+        img = self.vis_proccessors(img)
         # print("Image shape: ", img.shape)
         pass
     
@@ -107,7 +107,7 @@ class BLIP:
         #     print(type(img))
         #     imgs.append(self.vis_proccessors(img))
         print(self.vis_proccessors)
-        samples = {"image": self.vis_proccessors(x).unsqueeze(0).cuda() , "text_input": self.text_proccessors(c)}
+        samples = {"image": self.vis_proccessors(x).unsqueeze(0).cuda() , "text_input": [self.text_proccessors(c)]}
         print(samples['text_input'])
         itm_output = self.model(samples, match_head="itc")
         print(itm_output)
