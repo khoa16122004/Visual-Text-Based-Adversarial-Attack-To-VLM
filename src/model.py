@@ -128,6 +128,6 @@ if __name__ == "__main__":
     
     
         
-    model.evaluate(x, c)
+    model.evaluate(x, "a dog")
     
     
