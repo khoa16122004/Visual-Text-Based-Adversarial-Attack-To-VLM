@@ -121,7 +121,7 @@ if __name__ == "__main__":
     print(cv.imread("0.png"))
     for i in range(0, 5):
         # imgs.append(Image.open("0.png").convert("RGB"))
-        imgs.append(cv.imread("./0.png"))
+        imgs.append(cv.imread("0.png"))
         c.append("dog")
         
     model.evaluate(imgs, c)
