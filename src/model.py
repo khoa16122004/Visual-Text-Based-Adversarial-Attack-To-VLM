@@ -88,15 +88,18 @@ class BLIP:
         
     @torch.no_grad()
     def text_encode(self, c: List[str]):
-        # txt = self.text_proccessors(c).cuda()
+        txt = self.text_proccessors(c)
+        return self.model.extract_features(txt, mode="text")
         # return self.model
-        pass
+        # pass
     
     @torch.no_grad()
     def image_encode(self, img: List[Image.Image]):
-        img = self.vis_proccessors(img)
-        # print("Image shape: ", img.shape)
-        pass
+        imgs = []
+        for x in img:
+            imgs.append(self.vis_proccessors(x))
+        return self.model.extract_features(torch.stack(imgs), mode="image")
+        # pass
     
     
     
@@ -119,16 +122,17 @@ if __name__ == "__main__":
     model = BLIP()
     imgs = []
     c = []
-    x = Image.open("0.png").convert("RGB")
-    print(x)
+    # x = Image.open("0.png").convert("RGB")
+    # print(x)
     # print(cv.imread("0.png"))
-    # for i in range(0, 5):
-    #     # imgs.append(Image.open("0.png").convert("RGB"))
-    #     imgs.append(cv.imread("0.png"))
-    #     c.append("dog")
+    for i in range(0, 5):
+        imgs.append(Image.open("0.png").convert("RGB"))
+        imgs.append(cv.imread("0.png"))
+        c.append("dog")
     
     
         
-    model.evaluate(x, "a fox")
+    model.image_encode(imgs)
+    model.text_encode(c)
     
     
