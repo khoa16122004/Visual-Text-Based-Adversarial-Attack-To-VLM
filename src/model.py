@@ -98,11 +98,11 @@ class BLIP:
         
     @torch.no_grad()
     def text_encode(self, sample):
-        return self.model.extract_features(sample, mode="text")
+        return self.model.extract_features(sample, mode="text").text_embeds
 
     @torch.no_grad()
     def image_encode(self, sample):
-        return self.model.extract_features(sample, mode="image")
+        return self.model.extract_features(sample, mode="image").image_embeds
         # pass
     
 
