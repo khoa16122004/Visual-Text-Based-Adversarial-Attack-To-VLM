@@ -108,7 +108,7 @@ class BLIP:
         #     imgs.append(self.vis_proccessors(img))
         print(self.vis_proccessors)
         samples = {"image": self.vis_proccessors(x).unsqueeze(0).cuda() , "text_input": self.text_proccessors(c)}
-        itm_output = self.model(samples, match_head="itm")
+        itm_output = self.model(samples, match_head="itc")
         print(itm_output)
 
      
