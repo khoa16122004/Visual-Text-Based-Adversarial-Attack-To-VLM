@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 Flicker8K
 src/results/*
+stable-diffusion
