@@ -55,7 +55,7 @@ class CLIP:
         
     @torch.no_grad()
     def text_encode(self, c: List[str]):
-        c = self.tokenizer(c).cuda()
+        c = clip.tokenize(c).cuda()
         return self.model.encode_text(c)
     
     @torch.no_grad()
