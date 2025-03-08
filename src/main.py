@@ -37,9 +37,9 @@ if __name__ == "__main__":
         # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if args.arch == 'clip':
-            vlm = CLIP(args.model_name)
+            vlm = CLIP()
         elif args.arch == 'openclip':
-            vlm = OpenCLIP(args.model_name)
+            vlm = OpenCLIP()
 
         fitness = Fitness(org_img=img,
                           model=vlm,
