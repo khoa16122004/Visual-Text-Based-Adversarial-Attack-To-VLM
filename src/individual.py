@@ -135,8 +135,8 @@ class TextIndividual:
         final_img = PILImage.fromarray(final_img_rgb)
         return final_img, mask_region
 
-    def add_text_to_image(self, img: np.ndarray) -> Tuple[Image, np.ndarray]:
-        img_pil = Image.fromarray(img)
+    # def add_text_to_image(self, img: np.ndarray) -> Tuple[Image, np.ndarray]:
+    #     img_pil = Image.fromarray(img)
 
 
 
