@@ -59,7 +59,7 @@ if __name__ == "__main__":
         )
         
         best_individual = popop.run()
-        popop.save_log('popop.txt')
+        popop.save_log('popop.txt') 
         # break        
     
     # print("Success rate: ", success_rate / 100)  
