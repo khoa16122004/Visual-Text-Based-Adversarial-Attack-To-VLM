@@ -4,19 +4,18 @@ import numpy as np
 import cv2
 import random
 import math
-# import PIL.Image as Image
+from PIL import ImageDraw, ImageFont, ImageOps
 from PIL import Image as PILImage
 from PIL.Image import Image
 import numpy as np
 
 @dataclass
 class TextIndividual:
-    content: str
     location: Tuple[int, int]
-    box_size: Tuple[int, int]
+    font_size: int = 32
     angle: int = 0
-    blend_factor: float = 255
-    
+    blend_factor: float = 0.9
+
     def blend_colors(self, target_color, blend_factor):
         r = int(target_color[0] * (blend_factor))
         g = int(target_color[1] * (blend_factor))
@@ -25,162 +24,192 @@ class TextIndividual:
 
     def get_average_color_from_mask(self, mask):
         if mask.size == 0:
-            assert False, f"Mask is empty with {self.location} and {self.box_size}"
-        avg_color = np.mean(mask, axis=(0, 1)).astype(int) 
+            assert False, f"Mask is empty with shape {mask.shape}."
+        avg_color = np.mean(mask, axis=(0, 1)).astype(int)
         if len(mask.shape) == 3:
+            avg_color = self.blend_colors(avg_color, self.blend_factor)
             return (int(avg_color[0]), int(avg_color[1]), int(avg_color[2]))
         else:
-            avg_color = np.mean(mask)  
+            avg_color = np.mean(mask)
+            avg_color = self.blend_colors(avg_color, self.blend_factor)
             return (int(avg_color), int(avg_color), int(avg_color))
 
-    def get_loc_after_rotate(self, loc, angle):
-        x, y, w, h = loc
-        top_left = np.array([x, y])
-        top_right = np.array([x + w, y])
-        bottom_left = np.array([x, y + h])
-        bottom_right = np.array([x + w, y + h])
+    def add_text_to_image(self, img: np.ndarray, text: str) -> Tuple[Image, np.ndarray, np.ndarray, Tuple[int, int, int, int]]:
+        if isinstance(img, np.ndarray):
+            original_img = img.copy()
+            if len(img.shape) == 3 and img.shape[2] == 3:
+                pil_img = PILImage.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                original_pil = PILImage.fromarray(cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB))
+            else:
+                pil_img = PILImage.fromarray(img)
+                original_pil = PILImage.fromarray(original_img)
+        else:
+            pil_img = img.copy()
+            original_pil = img.copy()
         
-        points = np.array([top_left, top_right, bottom_left, bottom_right], dtype=np.float32)        
-        center = (x + w // 2, y + h // 2)
-
-        rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
-
-        rotated_points = cv2.transform(np.array([points]), rotation_matrix)[0]
-        x_min = np.min(rotated_points[:, 0])
-        y_min = np.min(rotated_points[:, 1])
-        x_max = np.max(rotated_points[:, 0])
-        y_max = np.max(rotated_points[:, 1])
+        if pil_img.mode != 'RGBA':
+            pil_img = pil_img.convert('RGBA')
+            original_pil = original_pil.convert('RGBA')
         
-        width = x_max - x_min
-        height = y_max - y_min
-        x = int(x_min)
-        y = int(y_min)
+        txt_img = PILImage.new('RGBA', pil_img.size, (255, 255, 255, 0))
+        draw = ImageDraw.Draw(txt_img)
         
-        return x, y, int(width), int(height)
-    def rotate_with_padding(self, img, angle_degrees):
-        (h, w) = img.shape[:2]
-        pad_h = h // 4
-        pad_w = w // 4
-        padded_img = cv2.copyMakeBorder(
-            img, pad_h, pad_h, pad_w, pad_w, 
-            borderType=cv2.BORDER_CONSTANT, value=(0,0,0)
-        )
-
-        (hp, wp) = padded_img.shape[:2]
-        center = (wp//2, hp//2)
-
-        M = cv2.getRotationMatrix2D(center, angle_degrees, 1.0)
-        rotated = cv2.warpAffine(padded_img, M, (wp, hp))
+        try:
+            font = ImageFont.truetype("arial.ttf", self.font_size)
+        except:
+            font = ImageFont.load_default()
         
-        return rotated, pad_h, pad_w
-    def rotate_image(self, img, angle_degrees, pad_h, pad_w):
-        (h, w) = img.shape[:2]
-        center = (w // 2, h // 2)
-        M = cv2.getRotationMatrix2D(center, angle_degrees, 1.0)
-        rotated = cv2.warpAffine(img, M, (w, h))
-        h, w = rotated.shape[:2]
-        rotated = rotated[pad_h:h-pad_h, pad_w:w-pad_w]
-        return rotated
-    def add_text_to_image(self, img: np.ndarray) -> Tuple[Image, np.ndarray]:
-        h, w = img.shape[:2]
-        box_w, box_h = self.box_size
-        x, y = self.location
-
-        words = self.content.split()
-
-        total_width = 0
-        word_widths = []
-        font_scale = 1.0
-
+        words = text.split()
+        word_positions = []
+        word_sizes = []
+        
+        current_position = self.location
         for word in words:
-            size = cv2.getTextSize(word, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)
-            word_width = size[0][0]
-            word_widths.append(word_width)
-            total_width += word_width
-        word_spacing = (box_w - total_width) // (total_width )
-        total_width += word_spacing * (len(words) - 1)
-
-        if total_width > 0:
-            font_scale = min(box_w / total_width, box_h / (cv2.getTextSize("Tg", cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0][1])) * 0.8
-
-        actual_word_widths = [int(w * font_scale) for w in word_widths]
-        actual_total_width = sum(actual_word_widths) + word_spacing * (len(words) - 1)
-
-        start_x = x + (box_w - actual_total_width) // 2
-        center_y = y + box_h // 2
-
-        rotated_img, pad_h, pad_w  = self.rotate_with_padding(img, self.angle)
+            bbox = draw.textbbox((0, 0), word, font=font)
+            textwidth = bbox[2] - bbox[0]
+            textheight = bbox[3] - bbox[1]
+            x = int(current_position[0] - textwidth / 2)
+            y = int(current_position[1] - textheight / 2)
+            
+            word_positions.append((x, y))
+            word_sizes.append((textwidth, textheight))
+            current_position = (current_position[0] + textwidth + 10, current_position[1])
+        
+        binary_mask = PILImage.new('L', pil_img.size, 0)
+        binary_mask_draw = ImageDraw.Draw(binary_mask)
         
         for i, word in enumerate(words):
-            word_size = cv2.getTextSize(word, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2)
-            word_width = word_size[0][0]
-            word_height = word_size[0][1]
+            x, y = word_positions[i]
+            binary_mask_draw.text((x, y), word, font=font, fill=255)
+        
+        rotated_binary_mask = binary_mask.rotate(self.angle, expand=0, center=self.location)
+        rotated_binary_mask_np = np.array(rotated_binary_mask)
+        y_indices, x_indices = np.where(rotated_binary_mask_np > 0)
+        
+        if len(y_indices) > 0 and len(x_indices) > 0:
+            x_min, x_max = np.min(x_indices), np.max(x_indices)
+            y_min, y_max = np.min(y_indices), np.max(y_indices)
+            
+            padding = 5
+            x_min = max(0, x_min - padding)
+            y_min = max(0, y_min - padding)
+            x_max = min(pil_img.width - 1, x_max + padding)
+            y_max = min(pil_img.height - 1, y_max + padding)
+            
+            box_width = x_max - x_min + 1
+            box_height = y_max - y_min + 1
+            box_coords = (x_min, y_min, x_max, y_max)
+        else:
+            box_coords = (0, 0, pil_img.width - 1, pil_img.height - 1)
+        
+        rotated_word_masks = []
+        word_colors = []
+        for i, word in enumerate(words):
+            x, y = word_positions[i]
+            word_mask = PILImage.new('L', pil_img.size, 0)
+            word_mask_draw = ImageDraw.Draw(word_mask)
+            word_mask_draw.text((x, y), word, font=font, fill=255)
+            rotated_word_mask = word_mask.rotate(self.angle, expand=0, center=self.location)
+            rotated_word_masks.append(rotated_word_mask)
+            rotated_mask_np = np.array(rotated_word_mask)
+            y_indices, x_indices = np.where(rotated_mask_np > 0)
+            
+            if len(y_indices) > 0 and len(x_indices) > 0:
+                x_min, x_max = np.min(x_indices), np.max(x_indices)
+                y_min, y_max = np.min(y_indices), np.max(y_indices)
+                
+                x_min = max(0, x_min)
+                y_min = max(0, y_min)
+                x_max = min(pil_img.width - 1, x_max)
+                y_max = min(pil_img.height - 1, y_max)
+                
+                img_np = np.array(pil_img)
+                region = img_np[y_min:y_max+1, x_min:x_max+1]
+                mask_region = rotated_mask_np[y_min:y_max+1, x_min:x_max+1]
+                
+                if region.size > 0 and mask_region.size > 0:
+                    if len(region.shape) == 3:
+                        mask_3d = np.stack([mask_region] * region.shape[2], axis=2)
+                        masked_region = region * (mask_3d > 0)
+                        non_zero = mask_3d > 0
+                        if np.any(non_zero):
+                            region_sum = np.sum(masked_region, axis=(0, 1))
+                            pixel_count = np.sum(non_zero[:,:,0])
+                            avg_color = region_sum / pixel_count
+                            avg_color = self.blend_colors(avg_color, self.blend_factor)
+                        else:
+                            avg_color = (255, 255, 255)
+                    else:
+                        masked_region = region * (mask_region > 0)
+                        non_zero = mask_region > 0
+                        if np.any(non_zero):
+                            avg_color = np.sum(masked_region) / np.sum(non_zero)
+                            avg_color = int(self.blend_colors(avg_color, self.blend_factor)[0])
+                            avg_color = (avg_color, avg_color, avg_color)
+                        else:
+                            avg_color = (255, 255, 255)
+                else:
+                    avg_color = (255, 255, 255)
+            else:
+                avg_color = (255, 255, 255)
+                
+            word_colors.append(avg_color)
+        
+        for i, word in enumerate(words):
+            x, y = word_positions[i]
+            color = word_colors[i]
+            draw.text((x, y), word, font=font, fill=color)
+        
+        txt_img = txt_img.rotate(self.angle, expand=0, center=self.location)
+        result = PILImage.alpha_composite(pil_img, txt_img)
+        
+        x_min, y_min, x_max, y_max = box_coords
+        original_box = original_pil.crop(box_coords)
+        result_box = result.crop(box_coords)
+        if isinstance(img, np.ndarray):
+            if len(img.shape) == 3 and img.shape[2] == 3:
+                return (
+                    # cv2.cvtColor(np.array(result.convert('RGB')), cv2.COLOR_RGB2BGR),
+                    # PILImage.fromarray(result.convert('RGB')),
+                    result,
+                    cv2.cvtColor(np.array(result_box.convert('RGB')), cv2.COLOR_RGB2BGR),
+                    cv2.cvtColor(np.array(original_box.convert('RGB')), cv2.COLOR_RGB2BGR),
+                    box_coords 
+                )
+            else:
+                return (
+                    # PILImage.fromarray(np.array(result.convert('RGB'))),
+                    result,
+                    np.array(result_box.convert('RGB')),
+                    np.array(original_box.convert('RGB')),
+                    box_coords
+                )
+        else:
+            return result, result_box, original_box, box_coords
 
-            word_y = center_y - word_height // 2  
-            word_x = start_x + sum(word_widths[:i]) + i * word_spacing
-            word_loc = (word_x+pad_w, word_y+pad_h, word_width, word_height)
-
-            x_aft, y_aft, w_aft, h_aft = self.get_loc_after_rotate(word_loc, self.angle)
-
-            word_roi = rotated_img[y_aft:y_aft + h_aft, x_aft:x_aft + w_aft]
-            color = self.get_average_color_from_mask(word_roi)
-            color_blended = self.blend_colors(color, self.blend_factor)
-
-            cv2.putText(word_roi, word, (0, h_aft), cv2.FONT_HERSHEY_SIMPLEX, font_scale, color_blended, 2)
-            rotated_img[y_aft:y_aft + h_aft, x_aft:x_aft + w_aft] = word_roi
-            start_x += word_width + word_spacing
-        final_img = self.rotate_image(rotated_img, -self.angle, pad_h, pad_w)
-        mask_region = final_img[y:y+box_h, x:x+box_w]
-        final_img_rgb = cv2.cvtColor(final_img, cv2.COLOR_BGR2RGB)
-        final_img = PILImage.fromarray(final_img_rgb)
-        return final_img, mask_region
-
-    def add_text_to_image(self, img: np.ndarray) -> Tuple[Image, np.ndarray]:
-        img_pil = Image.fromarray(img)
-
-
-
-    
-    
 if __name__ == "__main__":
-    test_img_path = r'D:\codePJ\RESEARCH\Flow-Based-Attack-To-VLM\src\images\lionsea.jpg'
-    img = cv2.imread(test_img_path)
-    text_test = "A fox is jumping"
-    img_shape = img.shape
-    # color = (255, 0, 0)  
+    img = cv2.imread(r"D:\codePJ\RESEARCH\Visual-Text-Based-Adversarial-Attack-To-VLM\images\lionsea.jpg")
+    img = cv2.resize(img, (375, 375))
+    text_test = "A fox"
+    location = (155, 50)
+    random_angle = 45
+    random_blend = 0.99
     
-    # box_size = (min(random.randint(int(0.25*img_shape[1]), img_shape[1] - 100), img_shape[1]), # width
-    #             min(random.randint(int(0.1*img_shape[0]), img_shape[0] - 100), img_shape[0])) # height
-    # location = (random.randint(0, img_shape[1] - box_size[0]), 
-    #             random.randint(0, img_shape[0] - box_size[1]))
-    box_size = (3467, 372)
-    location = (99, 718)
-    # random_angle = random.randint(-30, 30)
-    # random_blend = random.uniform(0.5, 1.0)
-    random_angle = -4
-    random_blend = 0.9
     individual = TextIndividual(
-        content=text_test, 
-        # color=color, 
-        location=location, 
-        box_size=box_size,
+        location=location,
+        font_size=120,
         angle=random_angle,
         blend_factor=random_blend
     )
     
-    img_test_aft, mask = individual.add_text_to_image(img)
-    # Show the PIL Image
-    img_test_aft.show()
-
-    # Alternatively, display with matplotlib
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=(10, 8))
-    plt.imshow(img_test_aft)
-    plt.axis('off')
-    plt.title("Image with Text")
-    plt.show()
-
-    cv2.imshow('Mask', cv2.resize(mask, (800, 600)))
+    img_test_aft, box1, box2, coor = individual.add_text_to_image(img=img, text=text_test)
+    cv2.imshow("Rotated text", img_test_aft)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
+    cv2.imshow("Converted Mask", box1)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imshow("Background Mask", box2)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    print(coor)

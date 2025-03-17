@@ -1,14 +1,28 @@
-# import clip
+import clip
 import torch
 import torch.nn as nn
 from PIL import Image
-# import open_clip
+import open_clip
 from typing import List
 from PIL import Image
 from lavis.models import load_model_and_preprocess
 from lavis.processors import load_processor
 import cv2 as cv
+from paddleocr import PaddleOCR
+import numpy as np
+from ppocr.utils.logging import get_logger
+import logging
+logger = get_logger()
+logger.setLevel(logging.ERROR)
 
+class OCR:
+    def __init__(self):
+        self.model = PaddleOCR(use_angle_cls=True, lang='en')
+    def evaluate(self, img):
+        result = self.model.ocr(img)
+        if result[0] is None:
+            return []
+        return result[0]
 class OpenCLIP:
     def __init__(self, model_name="ViT-H-14"):
         self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name, pretrained='laion2B-s32B-b79K')
@@ -55,7 +69,7 @@ class CLIP:
         
     @torch.no_grad()
     def text_encode(self, c: List[str]):
-        c = self.tokenizer(c).cuda()
+        c = clip.tokenize(c).cuda()
         return self.model.encode_text(c)
     
     @torch.no_grad()

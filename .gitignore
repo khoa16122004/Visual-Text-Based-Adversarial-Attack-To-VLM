@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 Flicker8K
 src/results/*
+test_*
+images/

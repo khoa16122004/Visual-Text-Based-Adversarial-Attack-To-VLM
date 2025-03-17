@@ -2,6 +2,11 @@ import json
 import random, os
 import numpy as np
 import torch
+from PIL import Image
+import cv2
+from typing import List, Tuple
+import uuid
+
 def seed_everything(seed: int):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -10,6 +15,46 @@ def seed_everything(seed: int):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
+def pil_to_cv2(img: Image):
+    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+
+def is_coor_valid(img: np.ndarray, box_location: tuple, box_size: tuple, angle: float, save_path:str='test/') -> bool:
+    save_path = save_path + str(uuid.uuid4()) + '.jpg'
+    img_h, img_w = img.shape[:2]
+    x, y = box_location
+    box_w, box_h = box_size
+
+    cx = x + box_w / 2.0
+    cy = y + box_h / 2.0
+
+    corners = np.array([
+        [-box_w/2, -box_h/2],
+        [ box_w/2, -box_h/2],
+        [ box_w/2,  box_h/2],
+        [-box_w/2,  box_h/2]
+    ])
+
+    theta = np.deg2rad(angle)
+    rotation_matrix = np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)]
+    ])
+
+    rotated_corners = corners.dot(rotation_matrix.T)
+    abs_corners = rotated_corners + np.array([cx, cy])
+    valid = True
+    for (px, py) in abs_corners:
+        if px < 0 or px > img_w or py < 0 or py > img_h:
+            valid = False
+            break
+    if save_path is not None:
+        img_copy = img.copy()
+        pts = abs_corners.reshape((-1, 1, 2)).astype(np.int32)
+        # Nếu box hợp lệ, vẽ với màu xanh; nếu không, vẽ với màu đỏ
+        color = (0, 255, 0) if valid else (0, 0, 255)
+        cv2.polylines(img_copy, [pts], isClosed=True, color=color, thickness=2)
+        cv2.imwrite(save_path, img_copy)
+    return valid
 
 import cv2
 import numpy as np

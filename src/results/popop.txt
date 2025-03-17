@@ -1,5 +1,0 @@
-{'id': 0, 'success': tensor([False], device='cuda:0'), 'fitness': -0.076416015625, 'params': {'content': 'A fox is jumping', 'location': (171, 618), 'box_size': (3467, 373), 'angle': -4, 'blend_factor': 0.7598453493868726}}
-{'id': 2, 'success': tensor([False], device='cuda:0'), 'fitness': -0.0760498046875, 'params': {'content': 'A fox is jumping', 'location': (262, 679), 'box_size': (3907, 324), 'angle': 2.0027606046195032, 'blend_factor': 0.7921769919051345}}
-{'id': 3, 'success': tensor([False], device='cuda:0'), 'fitness': -0.0643310546875, 'params': {'content': 'A fox is jumping', 'location': (171, 618), 'box_size': (3467, 373), 'angle': -4, 'blend_factor': 0.5301620823831938}}
-{'id': 4, 'success': tensor([False], device='cuda:0'), 'fitness': -0.062744140625, 'params': {'content': 'A fox is jumping', 'location': (172, 604), 'box_size': (3467, 373), 'angle': -4, 'blend_factor': 0.5301620823831938}}
-{'id': 8, 'success': tensor([False], device='cuda:0'), 'fitness': -0.060546875, 'params': {'content': 'A fox is jumping', 'location': (99, 718), 'box_size': (3467, 372), 'angle': -4, 'blend_factor': 0.5301620823831938}}
